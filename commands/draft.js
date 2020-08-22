@@ -7,7 +7,7 @@ const { stripIndents } = CommonTags
 const API = 'https://api.sleeper.app/v1'
 
 
-export const draftOrderJSON = (year) => (
+const draftOrderJSON = (year) => (
   fetch(`${API}/draft/${sleeper.drafts[year]}/picks`)
     .then((res) => res.json())
     .catch((error) => console.log(error))
@@ -24,7 +24,7 @@ export const filterDraftJSON = async (year) => {
   }))
 }
 
-export const draftRoundToString = (draftObj, round) => {
+const draftRoundToString = (draftObj, round) => {
   let returnString = `\n`
   draftObj
     .filter((pick) => pick.pickNumber <= round * 12 && pick.pickNumber > (round - 1) * 12)
