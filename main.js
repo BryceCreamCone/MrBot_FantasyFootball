@@ -14,37 +14,34 @@ const reply = async (message) => {
     if (message.content[0] === "!") {
       const [cmd, ...args] = message.content.slice(1).split(' ')
       switch (cmd) {
-        case 'hello':
-          message.channel.send('Hello, World!')
+      case 'draft':
+        const [year, fromRound, toRound] = args
+        const draftObject = await Draft.filterDraftJSON(year || LAST_SEASON)
+        const roundStrings = Draft.draftRoundsToString(draftObject, fromRound, toRound)
+        for (let i=0; i<roundStrings.length; i++) {
+          message.channel.send(roundStrings[i])
+        }
+        return
+      case 'rules':
+        message.channel.send({ embed: rules })
+        return
+      case 'trades':
+        switch(args[0]) {
+        case 'picks':
+          const picksObject = await Picks.filterTradedPicksJSON(args[1] || CURRENT_SEASON)
+          const tradedPicksString = Picks.tradedPicksToString(picksObject)
+          message.channel.send(tradedPicksString)
           return
-        case 'draft':
-          const [year, fromRound, toRound] = args
-          const draftObject = await Draft.filterDraftJSON(year || LAST_SEASON)
-          const roundStrings = Draft.draftRoundsToString(draftObject, fromRound, toRound)
-          for (const roundString of roundStrings) {
-            message.channel.send(roundString)
-          }
-          return
-        case 'trades':
-          switch(args[0]) {
-            case 'picks':
-              const picksObject = await Picks.filterTradedPicksJSON(args[1] || CURRENT_SEASON)
-              const tradedPicksString = Picks.tradedPicksToString(picksObject)
-              message.channel.send(tradedPicksString)
-              return
-            case 'all':
-              const tradesObj = await Trades.getAllTranscations('trade', LAST_SEASON)
-              const tradesString = Trades.tradesObjToString(tradesObj)
-              message.channel.send(tradesString)
-              return
-            default:
-              return
-          }
-        case 'rules':
-          message.channel.send({ embed: rules })
+        case 'all':
+          const tradesObj = await Trades.getAllTranscations('trade', LAST_SEASON)
+          const tradesString = Trades.tradesObjToString(tradesObj)
+          message.channel.send(tradesString)
           return
         default:
           return
+        }
+      default:
+        return
       }
     }
   } catch (error) {
