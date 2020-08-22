@@ -1,4 +1,5 @@
 import Discord from 'discord.js'
+import * as Draft from './commands/draft.js'
 import fetch from 'cross-fetch'
 import CommonTags from 'common-tags'
 const { stripIndents } = CommonTags
@@ -17,48 +18,6 @@ const getPlayer = (playerId) => allPlayers[playerId]
 const getPlayers = (playerIds) => (
   playerIds.map((playerId) => allPlayers[playerId])
 )
-
-const draftOrderJSON = (year) => (
-  fetch(`${API}/draft/${sleeper.drafts[year]}/picks`)
-    .then((res) => res.json())
-    .catch((error) => console.log(error))
-)
-
-const filterDraftJSON = async (year) => {
-  const draftJSON = await draftOrderJSON(year)
-  return draftJSON.map((pick) => ({
-    round: pick.round,
-    pickNumber: pick.pick_no,
-    position: pick.metadata.position,
-    name: `${pick.metadata.first_name} ${pick.metadata.last_name}`,
-    pickedBy: pick.picked_by,
-  }))
-}
-
-const draftRoundToString = (draftObj, round) => {
-  let returnString = `\n`
-  draftObj
-    .filter((pick) => pick.pickNumber <= round * 12 && pick.pickNumber > (round - 1) * 12)
-    .forEach((pick) => {
-      returnString += stripIndents`
-        [${sleeper.owners[pick.pickedBy].name}]
-        ${pick.round} : ${pick.pickNumber % 12 || 12} (${pick.pickNumber})
-        + ${pick.position} - ${pick.name}
-      `
-      returnString += '\n'
-    })
-  return `\`\`\`diff${returnString}\`\`\``
-}
-
-const draftRoundsToString = (draftObj, fromRound = 1, upToRound = 16) => {
-  let draftRoundsStrings = []
-  while (upToRound >= fromRound) {
-    const draftRoundString = draftRoundToString(draftObj, upToRound)
-    draftRoundsStrings.unshift(draftRoundString)
-    upToRound -= 1
-  }
-  return draftRoundsStrings
-}
 
 const tradedPicksJSON = (year) => (
   fetch(`${API}/league/${sleeper.leagueId[year]}/traded_picks`)
@@ -233,16 +192,10 @@ const reply = async (message) => {
           return
         case 'draft':
           const [year, fromRound, toRound] = args
-          const draftObject = await filterDraftJSON(year || LAST_SEASON)
-          if (draftObject) {
-            message.channel.send('No draft results are available for that year')
-            return
-          }
-          else {
-            const roundStrings = draftRoundsToString(draftObject, fromRound, toRound)
-            for (const roundString of roundStrings) {
-              message.channel.send(roundString)
-            }
+          const draftObject = await Draft.filterDraftJSON(year || LAST_SEASON)
+          const roundStrings = Draft.draftRoundsToString(draftObject, fromRound, toRound)
+          for (const roundString of roundStrings) {
+            message.channel.send(roundString)
           }
           return
         case 'trades':
