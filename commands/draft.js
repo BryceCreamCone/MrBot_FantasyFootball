@@ -1,8 +1,8 @@
 import fetch from 'cross-fetch'
 import sleeper from '../sleeper.js'
+import * as H from '../helpers.js'
 import CommonTags from 'common-tags'
 const { stripIndents } = CommonTags
-
 
 const API = 'https://api.sleeper.app/v1'
 
@@ -39,18 +39,33 @@ const draftRoundToString = (draftObj, round) => {
   return `\`\`\`diff${returnString}\`\`\``
 }
 
-export const draftRoundsToString = (draftObj, fromRound, upToRound) => {
+export const draftRoundsToString = (draftObj, fRound, uRound) => {
+  let [fromRound, upToRound] = [fRound, uRound]
   if (!fromRound && !upToRound) {
     fromRound = 1
     upToRound = 16
   }
   if (fromRound && !upToRound) upToRound = fromRound
 
-  let draftRoundsStrings = []
+  const draftRoundsStrings = []
   while (upToRound >= fromRound) {
     const draftRoundString = draftRoundToString(draftObj, upToRound)
     draftRoundsStrings.unshift(draftRoundString)
     upToRound -= 1
   }
   return draftRoundsStrings
+}
+
+export const getDraftArgs = (argsArray) => {
+  const defaults = {
+    owner: 'all',
+    rounds: '1-16',
+    year: '2019',
+  }
+
+  const inputArgs = H.getArgs(argsArray)
+  const returnObj = H.replaceNullsWithDefaults(inputArgs, defaults)
+  returnObj.rounds = returnObj.rounds.split('-').map((num) => Number(num))
+  return returnObj
+
 }

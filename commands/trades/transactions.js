@@ -7,7 +7,6 @@ const API = 'https://api.sleeper.app/v1'
 
 const getPlayers = (playerIds) => playerIds.map((playerId) => allPlayers[playerId])
 
-
 const transactionsJSON = (year, week) => fetch(`${API}/league/${sleeper.leagueId[year]}/transactions/${week}`)
   .then((res) => res.json())
   .catch((error) => console.log(error))
@@ -52,15 +51,16 @@ const filterTransactionsJSON = async (type, year, week) => {
     }))
 }
 
-export const getAllTranscations = (type, year) => {
+export const getAllTranscations = async (type, year) => {
   const transactionsArray = []
   let week = type === 'trade' ? 11 : 14
   while (week > 0) {
-    const weeklyTransactions = filterTransactionsJSON(type, year, week)
-    transactionsArray.push(...weeklyTransactions)
+    transactionsArray.push(filterTransactionsJSON(type, year, week))
     week -= 1
   }
-  return transactionsArray
+  const promiseArr = await Promise.all(transactionsArray)
+  const returnArr = promiseArr.filter((arr) => arr.length > 0)
+  return returnArr.flat()
 }
 
 const playerString = (player) => {
