@@ -39,7 +39,13 @@ const draftRoundToString = (draftObj, round) => {
   return `\`\`\`diff${returnString}\`\`\``
 }
 
-export const draftRoundsToString = (draftObj, fromRound = 1, upToRound = 16) => {
+export const draftRoundsToString = (draftObj, fromRound, upToRound) => {
+  if (!fromRound && !upToRound) {
+    fromRound = 1
+    upToRound = 16
+  }
+  if (fromRound && !upToRound) upToRound = fromRound
+
   let draftRoundsStrings = []
   while (upToRound >= fromRound) {
     const draftRoundString = draftRoundToString(draftObj, upToRound)

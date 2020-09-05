@@ -5,19 +5,17 @@ import sleeper from '../../sleeper.js'
 const API = 'https://api.sleeper.app/v1'
 
 
-const getPlayers = (playerIds) => (
-  playerIds.map((playerId) => allPlayers[playerId])
-)
+const getPlayers = (playerIds) => playerIds.map((playerId) => allPlayers[playerId])
 
-const transactionsJSON = (year, week) => (
-  fetch(`${API}/league/${sleeper.leagueId[year]}/transactions/${week}`)
-    .then((res) => res.json())
-    .catch((error) => console.log(error))
-)
+
+const transactionsJSON = (year, week) => fetch(`${API}/league/${sleeper.leagueId[year]}/transactions/${week}`)
+  .then((res) => res.json())
+  .catch((error) => console.log(error))
+
 
 const getAddsforOwner = (transaction, rosterId) => {
   const { adds, draft_picks: picks } = transaction
-  let itemsReceived = {}
+  const itemsReceived = {}
   const players = Object.keys(adds).filter((playerId) => adds[playerId] === rosterId)
   itemsReceived.players = players
   const draftPicks = picks.filter((pick) => pick.owner_id === rosterId)
@@ -27,7 +25,7 @@ const getAddsforOwner = (transaction, rosterId) => {
 
 const getDropsforOwner = (transaction, rosterId) => {
   const { drops, draft_picks: picks } = transaction
-  let itemsGiven = {}
+  const itemsGiven = {}
   const players = Object.keys(drops).filter((playerId) => drops[playerId] === rosterId)
   itemsGiven.players = players
   const draftPicks = picks.filter((pick) => pick.previous_owner_id === rosterId)
@@ -54,19 +52,21 @@ const filterTransactionsJSON = async (type, year, week) => {
     }))
 }
 
-export const getAllTranscations = async (type, year) => {
-  let transactionsArray = []
+export const getAllTranscations = (type, year) => {
+  const transactionsArray = []
   let week = type === 'trade' ? 11 : 14
   while (week > 0) {
-    const weeklyTransactions = await filterTransactionsJSON(type, year, week)
+    const weeklyTransactions = filterTransactionsJSON(type, year, week)
     transactionsArray.push(...weeklyTransactions)
     week -= 1
   }
   return transactionsArray
 }
 
-const playerString = (player) => (
-`    ${player.position} - ${player.team} ${player.full_name || player.first_name + ' ' + player.last_name}\n`)
+const playerString = (player) => {
+  const playerName = player.full_name || `${player.first_name} ${player.last_name}`
+  return `    ${player.position} - ${playerName}\n`
+}
 
 const playersToPlayerStrings = (playersArr) => {
   let returnString = ``
@@ -76,9 +76,7 @@ const playersToPlayerStrings = (playersArr) => {
   return returnString
 }
 
-const pickToString = (pick) => (
-`    ${pick.season} - Round ${pick.round}\n`
-)
+const pickToString = (pick) => `    ${pick.season} - Round ${pick.round}\n`
 
 const picksToString = (picksArr) => {
   let returnString = ``
@@ -88,6 +86,7 @@ const picksToString = (picksArr) => {
   return returnString
 }
 
+/* eslint-disable */
 export const tradesObjToString = (tradesObj) => {
   const { owners } = sleeper
   let returnString = ``
