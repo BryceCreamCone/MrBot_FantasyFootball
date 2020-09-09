@@ -1,6 +1,8 @@
 import fetch from 'cross-fetch'
 import allPlayers from '../../players.js'
 import sleeper from '../../sleeper.js'
+import * as H from '../../helpers.js'
+
 
 const API = 'https://api.sleeper.app/v1'
 
@@ -130,4 +132,15 @@ ${picksToString(ownerOnePicksAdded)}`
     }
   })
   return `\`\`\`diff${returnString}\`\`\``
+}
+
+export const getTransactionsArgs = (argsArray) => {
+  const defaults = {
+    type: 'all',
+    year: '2020',
+  }
+
+  const inputArgs = H.getArgs(argsArray)
+  const returnObj = H.replaceNullsWithDefaults(inputArgs, defaults)
+  return returnObj
 }

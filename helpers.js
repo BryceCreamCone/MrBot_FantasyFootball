@@ -10,7 +10,7 @@ export const getArgs = (argsArray, sep = '=') => {
 
 export const replaceNullsWithDefaults = (obj, defaults) => {
   if (Object.keys(obj).length === 0) return defaults
-  for (const property in obj) {
+  for (const property in defaults) {
     if (!obj[property]) obj[property] = defaults[property]
   }
   return obj

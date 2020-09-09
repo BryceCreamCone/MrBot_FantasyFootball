@@ -24,23 +24,27 @@ export const filterDraftJSON = async (year) => {
   }))
 }
 
-const draftRoundToString = (draftObj, round) => {
+const draftRoundToString = (draftObj, round, owner) => {
   let returnString = `\n`
   draftObj
     .filter((pick) => pick.pickNumber <= round * 12 && pick.pickNumber > (round - 1) * 12)
     .forEach((pick) => {
-      returnString += stripIndents`
-        [${sleeper.owners[pick.pickedBy].name}]
-        ${pick.round} : ${pick.pickNumber % 12 || 12} (${pick.pickNumber})
-        + ${pick.position} - ${pick.name}
-      `
-      returnString += '\n'
+      const ownerName = sleeper.owners[pick.pickedBy].name
+      if (owner.toLowerCase() === ownerName.toLowerCase() || owner === 'all') {
+        returnString += stripIndents`
+          [${ownerName}]
+          ${pick.round} : ${pick.pickNumber % 12 || 12} (${pick.pickNumber})
+          + ${pick.position} - ${pick.name}
+        `
+        returnString += '\n'
+      }
+
     })
   return `\`\`\`diff${returnString}\`\`\``
 }
 
-export const draftRoundsToString = (draftObj, fRound, uRound) => {
-  let [fromRound, upToRound] = [fRound, uRound]
+export const draftRoundsToString = (draftObj, rounds, owner) => {
+  let [fromRound, upToRound] = rounds
   if (!fromRound && !upToRound) {
     fromRound = 1
     upToRound = 16
@@ -49,7 +53,7 @@ export const draftRoundsToString = (draftObj, fRound, uRound) => {
 
   const draftRoundsStrings = []
   while (upToRound >= fromRound) {
-    const draftRoundString = draftRoundToString(draftObj, upToRound)
+    const draftRoundString = draftRoundToString(draftObj, upToRound, owner)
     draftRoundsStrings.unshift(draftRoundString)
     upToRound -= 1
   }
@@ -60,12 +64,11 @@ export const getDraftArgs = (argsArray) => {
   const defaults = {
     owner: 'all',
     rounds: '1-16',
-    year: '2019',
+    year: '2020',
   }
 
   const inputArgs = H.getArgs(argsArray)
   const returnObj = H.replaceNullsWithDefaults(inputArgs, defaults)
   returnObj.rounds = returnObj.rounds.split('-').map((num) => Number(num))
   return returnObj
-
 }

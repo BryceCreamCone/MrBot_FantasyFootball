@@ -5,9 +5,6 @@ import * as Draft from './commands/draft.js'
 import * as Picks from './commands/trades/picks.js'
 import * as Trades from './commands/trades/transactions.js'
 
-const CURRENT_SEASON = 2020
-const LAST_SEASON = CURRENT_SEASON - 1
-
 const reply = async (message) => {
   try {
     if (message.content[0] === "!") {
@@ -15,35 +12,34 @@ const reply = async (message) => {
       switch (cmd) {
         case 'draft': {
           const { owner, rounds, year } = Draft.getDraftArgs(args)
-          const [fromRound, toRound] = rounds
-          const draftObject = await Draft.filterDraftJSON(year || LAST_SEASON)
-          const roundStrings = Draft.draftRoundsToString(draftObject, fromRound, toRound)
+          const draftObject = await Draft.filterDraftJSON(year)
+          const roundStrings = Draft.draftRoundsToString(draftObject, rounds, owner)
           for (let i=0; i<roundStrings.length; i++) {
             message.channel.send(roundStrings[i])
           }
           return
         }
+
       case 'rules':
         message.channel.send({ embed: rules })
         return
-      case 'trades':
-        switch(args[0]) {
-          case 'all': {
-            const tradesObj = await Trades.getAllTranscations('trade', LAST_SEASON)
-            console.log(tradesObj)
-            const tradesString = Trades.tradesObjToString(tradesObj)
-            message.channel.send(tradesString)
-            return
-          }
-          case 'picks': {
-            const picksObject = await Picks.filterTradedPicksJSON(args[1] || CURRENT_SEASON)
-            const tradedPicksString = Picks.tradedPicksToString(picksObject)
-            message.channel.send(tradedPicksString)
-            return
-          }
-        default:
+
+      case 'trades': {
+        const { type, year } = Trades.getTransactionsArgs(args)
+
+        if (type === 'all') {
+          const tradesObj = await Trades.getAllTranscations('trade', year)
+          const tradesString = Trades.tradesObjToString(tradesObj)
+          message.channel.send(tradesString)
           return
         }
+
+        const picksObject = await Picks.filterTradedPicksJSON(year)
+        const tradedPicksString = Picks.tradedPicksToString(picksObject)
+        message.channel.send(tradedPicksString)
+        return
+        }
+
       default:
         return
       }
