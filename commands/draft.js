@@ -25,7 +25,7 @@ export const filterDraftJSON = async (year) => {
 }
 
 const draftRoundToString = (draftObj, round, owner) => {
-  let returnString = `\n`
+  let returnString = ``
   draftObj
     .filter((pick) => pick.pickNumber <= round * 12 && pick.pickNumber > (round - 1) * 12)
     .forEach((pick) => {
@@ -38,9 +38,8 @@ const draftRoundToString = (draftObj, round, owner) => {
         `
         returnString += '\n'
       }
-
     })
-  return `\`\`\`diff${returnString}\`\`\``
+  return returnString.length ? `\`\`\`diff\n${returnString}\`\`\`` : ''
 }
 
 export const draftRoundsToString = (draftObj, rounds, owner) => {
