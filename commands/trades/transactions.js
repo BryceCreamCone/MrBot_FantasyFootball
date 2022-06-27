@@ -1,7 +1,9 @@
 import fetch from 'cross-fetch'
-import allPlayers from '../../players.js'
 import sleeper from '../../secrets/sleeper.js'
 import * as H from '../../src/helpers.js'
+
+// Injected with dockerfile
+import allPlayers from '../../players.json'
 
 
 const API = 'https://api.sleeper.app/v1'

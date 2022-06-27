@@ -63,7 +63,7 @@ export const getDraftArgs = (argsArray) => {
   const defaults = {
     owner: 'all',
     rounds: '1-16',
-    year: '2020',
+    year: '2021',
   }
 
   const inputArgs = H.getArgs(argsArray)
