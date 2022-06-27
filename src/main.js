@@ -1,10 +1,10 @@
 import Discord from 'discord.js'
-import auth from './token.js'
-import rules from './rules.js'
-import * as Draft from './commands/draft.js'
-import * as Lottery from './commands/lottery.js'
-import * as Picks from './commands/trades/picks.js'
-import * as Trades from './commands/trades/transactions.js'
+import auth from '../secrets/token.js'
+import rules from '../commands/rules.js'
+import * as Draft from '../commands/draft.js'
+import * as Lottery from '../commands/lottery.js'
+import * as Picks from '../commands/trades/picks.js'
+import * as Trades from '../commands/trades/transactions.js'
 
 const reply = async (message) => {
   try {

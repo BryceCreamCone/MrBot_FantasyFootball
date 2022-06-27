@@ -1,7 +1,7 @@
 import fetch from 'cross-fetch'
 import allPlayers from '../../players.js'
-import sleeper from '../../sleeper.js'
-import * as H from '../../helpers.js'
+import sleeper from '../../secrets/sleeper.js'
+import * as H from '../../src/helpers.js'
 
 
 const API = 'https://api.sleeper.app/v1'

@@ -1,4 +1,4 @@
-import * as H from '../helpers.js'
+import * as H from '../src/helpers.js'
 
 export const mkArray = (name, percentage) => {
   const returnArray = []

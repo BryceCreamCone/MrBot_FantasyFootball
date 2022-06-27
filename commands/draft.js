@@ -1,6 +1,6 @@
 import fetch from 'cross-fetch'
 import sleeper from '../secrets/sleeper.js'
-import * as H from '../helpers.js'
+import * as H from '../src/helpers.js'
 import CommonTags from 'common-tags'
 const { stripIndents } = CommonTags
 
