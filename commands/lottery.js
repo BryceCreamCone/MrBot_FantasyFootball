@@ -3,7 +3,7 @@ import * as H from '../helpers.js'
 export const mkArray = (name, percentage) => {
   const returnArray = []
   for (let i=0; i<percentage; i+=1) {
-      returnArray.push(name)
+    returnArray.push(name)
   }
   return returnArray
 }
@@ -20,7 +20,7 @@ const getPicks = (draftOrder, draftPool) => {
   let order = draftOrder
   let pool = draftPool
   for (let i=0; i<3; i+=1) {
-      [order, pool] = getNextPick(order, pool)
+    [order, pool] = getNextPick(order, pool)
   }
   const poolSet = new Set(pool)
   const rest = [...poolSet].reverse()
@@ -51,8 +51,8 @@ const generators = {
   *draftGenerator (finalDraftOrder) {
     let i = 11
     while (i >= 0) {
-        yield finalDraftOrder[i]
-        i -= 1
+      yield finalDraftOrder[i]
+      i -= 1
     }
   }
 }

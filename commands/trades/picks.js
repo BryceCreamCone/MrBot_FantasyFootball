@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch'
-import sleeper from '../../sleeper.js'
+import sleeper from '../../secrets/sleeper.js'
 
 const API = 'https://api.sleeper.app/v1'
 

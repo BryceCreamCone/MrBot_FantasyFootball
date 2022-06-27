@@ -1,7 +1,3 @@
 /node_modules/
-
+/secrets/
 /players.js
-
-/sleeper*.js
-
-/token.js
