@@ -1,18 +1,19 @@
 {
-  "name": "hello-bot",
-  "version": "0.9",
-  "description": "test bot",
+  "name": "MrBot",
+  "version": "1.0",
+  "description": "A Discord Bot for the fantasy football league: Thee 608",
   "main": "main.js",
   "type": "module",
-  "author": "BryceCream",
+  "author": "Bryce Gust",
+  "private": true,
   "dependencies": {
     "common-tags": "^1.8.0",
     "cross-fetch": "^3.0.5",
-    "discord.js": "^12.3.0",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.0"
+    "discord.js": "^12.3.0"
   },
   "devDependencies": {
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
     "eslint": "^7.8.1"
   }
 }

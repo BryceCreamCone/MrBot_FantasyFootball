@@ -1,4 +1,6 @@
-FROM node:14-buster-slim
+FROM alpine
+
+RUN apk add --update nodejs yarn curl
 
 ADD . .
 
@@ -6,7 +8,9 @@ RUN yarn install
 
 RUN touch players.json
 
-RUN apt-get update && apt-get -y install curl && curl https://api.sleeper.app/v1/players/nfl > players.json
+RUN curl https://api.sleeper.app/v1/players/nfl > players.json
+
+RUN apk del yarn curl
 
 WORKDIR /src
 
