@@ -6,13 +6,13 @@ ADD . .
 
 RUN yarn install
 
-RUN touch players.json
+RUN mkdir data && touch data/players.json
 
-RUN curl https://api.sleeper.app/v1/players/nfl > players.json
+RUN curl https://api.sleeper.app/v1/players/nfl > data/players.json
 
 RUN apk del yarn curl
 
 WORKDIR /src
 
-CMD ["node", "--experimental-json-modules", "main.js"]
+CMD ["node", "main.js"]
 

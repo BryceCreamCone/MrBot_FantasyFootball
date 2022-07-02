@@ -1,13 +1,10 @@
 import fetch from 'cross-fetch'
+import fs from 'fs'
 import sleeper from '../../secrets/sleeper.js'
 import * as H from '../../src/helpers.js'
 
-// Injected with dockerfile
-import allPlayers from '../../players.json'
-
-
 const API = 'https://api.sleeper.app/v1'
-
+const allPlayers = fs.readFile('../../data/players.json', (_, data) => JSON.parse(data))
 
 const getPlayers = (playerIds) => playerIds.map((playerId) => allPlayers[playerId])
 
@@ -139,7 +136,7 @@ ${picksToString(ownerOnePicksAdded)}`
 export const getTransactionsArgs = (argsArray) => {
   const defaults = {
     type: 'all',
-    year: '2020',
+    year: '2021',
   }
 
   const inputArgs = H.getArgs(argsArray)

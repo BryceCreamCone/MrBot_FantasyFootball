@@ -5,7 +5,7 @@ const API = 'https://api.sleeper.app/v1'
 
 
 const tradedPicksJSON = (year) => (
-  fetch(`${API}/league/${sleeper.leagueId[year || 2020]}/traded_picks`)
+  fetch(`${API}/league/${sleeper.leagueId[year || 2021]}/traded_picks`)
     .then((res) => res.json())
     .catch((error) => console.log(error))
 )
