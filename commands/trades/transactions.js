@@ -1,17 +1,23 @@
 import fetch from 'cross-fetch'
-import fs from 'fs'
 import sleeper from '../../secrets/sleeper.js'
 import * as H from '../../src/helpers.js'
 
 const API = 'https://api.sleeper.app/v1'
-const allPlayers = fs.readFile('../../data/players.json', (_, data) => JSON.parse(data))
 
-const getPlayers = (playerIds) => playerIds.map((playerId) => allPlayers[playerId])
+const getPlayersJSON = () => (
+  fetch(`${API}/players/nfl`)
+    .then((resp) => resp.json())
+    .catch((error) => console.log(error))
+)
 
-const transactionsJSON = (year, week) => fetch(`${API}/league/${sleeper.leagueId[year]}/transactions/${week}`)
-  .then((res) => res.json())
-  .catch((error) => console.log(error))
+const getTransactionsJSON = (year, week) => (
+  fetch(`${API}/league/${sleeper.leagueId[year]}/transactions/${week}`)
+    .then((res) => res.json())
+    .catch((error) => console.log(error))
+)
 
+// large amounts of (mostly) static data, so call this once on file creation
+const allPlayers = await getPlayersJSON()
 
 const getAddsforOwner = (transaction, rosterId) => {
   const { adds, draft_picks: picks } = transaction
@@ -34,7 +40,7 @@ const getDropsforOwner = (transaction, rosterId) => {
 }
 
 const filterTransactionsJSON = async (type, year, week) => {
-  const transactions = await transactionsJSON(year, week)
+  const transactions = await getTransactionsJSON(year, week)
   return transactions
     .filter((transaction) => transaction.type === type)
     .map((transaction) => ({
@@ -65,6 +71,7 @@ export const getAllTranscations = async (type, year) => {
 }
 
 const playerString = (player) => {
+  if (!player) return `    fudge`
   const playerName = player.full_name || `${player.first_name} ${player.last_name}`
   return `    ${player.position} - ${playerName}\n`
 }
@@ -88,6 +95,7 @@ const picksToString = (picksArr) => {
 }
 
 /* eslint-disable */
+const getPlayers = (playerIds) => playerIds.map((playerId) => allPlayers[playerId])
 export const tradesObjToString = (tradesObj) => {
   const { owners } = sleeper
   let returnString = ``
