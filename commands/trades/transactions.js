@@ -16,7 +16,7 @@ const getTransactionsJSON = (year, week) => (
     .catch((error) => console.log(error))
 )
 
-// large amounts of (mostly) static data, so call this once on file creation
+// Large amounts of (mostly) static data, so call this once on file creation
 const allPlayers = await getPlayersJSON()
 
 const getAddsforOwner = (transaction, rosterId) => {
