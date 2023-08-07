@@ -3,6 +3,7 @@ import sleeper from '../../secrets/sleeper.js'
 import * as H from '../../src/helpers.js'
 
 const API = 'https://api.sleeper.app/v1'
+const { owners } = sleeper
 
 const getPlayersJSON = () => (
   fetch(`${API}/players/nfl`)
@@ -19,41 +20,54 @@ const getTransactionsJSON = (year, week) => (
 // Large amounts of (mostly) static data, so call this once on file creation
 const allPlayers = await getPlayersJSON()
 
-const getAddsforOwner = (transaction, rosterId) => {
+const getAddsforOwner = (transaction, userId) => {
+  console.log(userId)
   const { adds, draft_picks: picks } = transaction
+  console.log(adds)
   const itemsReceived = {}
-  const players = Object.keys(adds).filter((playerId) => adds[playerId] === rosterId)
+  const players = Object.keys(adds).filter((playerId) => adds[playerId] === owners[userId].rosterId)
   itemsReceived.players = players
-  const draftPicks = picks.filter((pick) => pick.owner_id === rosterId)
+  const draftPicks = picks.filter((pick) => pick.owner_id === owners[userId].rosterId)
   itemsReceived.draftPicks = draftPicks
   return itemsReceived
 }
 
-const getDropsforOwner = (transaction, rosterId) => {
+const getDropsforOwner = (transaction, userId) => {
   const { drops, draft_picks: picks } = transaction
   const itemsGiven = {}
-  const players = Object.keys(drops).filter((playerId) => drops[playerId] === rosterId)
+  const players = Object.keys(drops).filter((playerId) => drops[playerId] === owners[userId].rosterId)
   itemsGiven.players = players
-  const draftPicks = picks.filter((pick) => pick.previous_owner_id === rosterId)
+  const draftPicks = picks.filter((pick) => pick.previous_owner_id === owners[userId].rosterId)
   itemsGiven.draftPicks = draftPicks
   return itemsGiven
 }
 
+const getOwnerIdsFromTransaction = (relaventOwners, transaction) => ([
+  Object.entries(relaventOwners).filter(([, { rosterId }]) => transaction.roster_ids[0] === rosterId)[0][0],
+  Object.entries(relaventOwners).filter(([, { rosterId }]) => transaction.roster_ids[1] === rosterId)[0][0]
+])
+const getOwnersForYear = (year) => (
+  Object.entries(owners)
+  .filter(([, { yearsActive }]) => yearsActive.includes(year))
+  .reduce((prev, [userId, userInfo]) => ({ ...prev, [userId]: userInfo }), {})
+)
 const filterTransactionsJSON = async (type, year, week) => {
+  const relaventOwners = getOwnersForYear(year)
   const transactions = await getTransactionsJSON(year, week)
   return transactions
     .filter((transaction) => transaction.type === type)
+    .map((transaction) => ({ ...transaction, ownerIds: getOwnerIdsFromTransaction(relaventOwners, transaction) }))
     .map((transaction) => ({
       week,
-      ownerOne: transaction.roster_ids[0],
-      ownerTwo: transaction.roster_ids[1],
+      ownerOneId: transaction.ownerIds[0],
+      ownerTwoId: transaction.ownerIds[1],
       adds: {
-        ownerOne: getAddsforOwner(transaction, transaction.roster_ids[0]),
-        ownerTwo: getAddsforOwner(transaction, transaction.roster_ids[1]),
+        ownerOne: getAddsforOwner(transaction, transaction.ownerIds[0]),
+        ownerTwo: getAddsforOwner(transaction, transaction.ownerIds[1]),
       },
       drops: {
-        ownerOne: getDropsforOwner(transaction, transaction.roster_ids[0]),
-        ownerTwo: getDropsforOwner(transaction, transaction.roster_ids[1]),
+        ownerOne: getDropsforOwner(transaction, transaction.ownerIds[0]),
+        ownerTwo: getDropsforOwner(transaction, transaction.ownerIds[1]),
       },
     }))
 }
@@ -65,7 +79,7 @@ export const getAllTranscations = async (type, year) => {
     transactionsArray.push(filterTransactionsJSON(type, year, week))
     week -= 1
   }
-  const promiseArr = await Promise.all(transactionsArray)
+  const promiseArr = await Promise.all(transactionsArray).catch((err) => console.log(err))
   const returnArr = promiseArr.filter((arr) => arr.length > 0)
   return returnArr.flat()
 }
@@ -95,20 +109,19 @@ const picksToString = (picksArr) => {
 }
 
 /* eslint-disable */
+// TODO: Differentiate active owners by year
 const getPlayers = (playerIds) => playerIds.map((playerId) => allPlayers[playerId])
 export const tradesObjToString = (tradesObj) => {
-  const { owners } = sleeper
   let returnString = ``
   tradesObj.forEach((trade) => {
-    const [ownerOneId] = Object.keys(owners).filter((userId) => owners[userId].rosterId === trade.ownerOne)
-    const [ownerTwoId] = Object.keys(owners).filter((userId) => owners[userId].rosterId === trade.ownerTwo)
-    const ownerOnePlayersAdded = getPlayers(trade.adds.ownerOne.players)
-    const ownerTwoPlayersAdded = getPlayers(trade.adds.ownerTwo.players)
-    const ownerOnePicksAdded = trade.adds.ownerOne.draftPicks
-    const ownerTwoPicksAdded = trade.adds.ownerTwo.draftPicks
+    const { adds, ownerOneId, ownerTwoId, week } = trade
+    const ownerOnePlayersAdded = getPlayers(adds.ownerOne.players)
+    const ownerTwoPlayersAdded = getPlayers(adds.ownerTwo.players)
+    const ownerOnePicksAdded = adds.ownerOne.draftPicks
+    const ownerTwoPicksAdded = adds.ownerTwo.draftPicks
 
     returnString += `
-+ Week ${trade.week}
++ Week ${week}
 ◯ ${owners[ownerOneId].name} ➡ ${owners[ownerTwoId].name}`
 
     if (ownerTwoPlayersAdded.length > 0) {
@@ -144,7 +157,7 @@ ${picksToString(ownerOnePicksAdded)}`
 export const getTransactionsArgs = (argsArray) => {
   const defaults = {
     type: 'all',
-    year: '2021',
+    year: '2022',
   }
 
   const inputArgs = H.getArgs(argsArray)

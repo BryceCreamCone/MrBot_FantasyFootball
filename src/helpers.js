@@ -15,3 +15,12 @@ export const replaceNullsWithDefaults = (obj, defaults) => {
   }
   return obj
 }
+
+export const inactiveOwnerIds = new Set(
+  // Tyson
+  "474037339111288832",
+  // Jesse
+  "474038500170133504",
+  // Austin
+  "474328458051186688",
+)

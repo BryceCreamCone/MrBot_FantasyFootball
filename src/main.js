@@ -54,6 +54,13 @@ const reply = async (message) => {
 }
 
 
-const bot = new Discord.Client()
+const bot = new Discord.Client({
+  intents: [
+    Discord.Intents.FLAGS.GUILDS,
+    Discord.Intents.FLAGS.GUILD_MESSAGES,
+    Discord.Intents.FLAGS.GUILD_MEMBERS,
+    Discord.Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+  ],
+});
 bot.on('message', (message) => reply(message));
 bot.login(auth.token)
